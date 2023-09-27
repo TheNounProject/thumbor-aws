@@ -12,6 +12,7 @@ from thumbor.loaders import LoaderResult
 from tornado.testing import gen_test
 
 from .fixtures.storage_fixture import IMAGE_PATH, IMAGE_BYTES, s3_bucket
+from .fixtures import LOCAL_PORT
 from tc_aws.loaders import s3_loader
 from tests import S3MockedAsyncTestCase
 
@@ -20,7 +21,7 @@ class S3LoaderTestCase(S3MockedAsyncTestCase):
 
     @gen_test
     async def test_can_load_image(self):
-        client = botocore.session.get_session().create_client('s3', endpoint_url='http://localhost:5000')
+        client = botocore.session.get_session().create_client('s3', endpoint_url=f'http://localhost:{LOCAL_PORT}')
 
         client.put_object(
             Bucket=s3_bucket,

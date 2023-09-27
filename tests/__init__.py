@@ -19,6 +19,7 @@ from tornado.testing import AsyncTestCase
 
 from tc_aws.aws.bucket import Bucket
 from tests.fixtures.storage_fixture import s3_bucket
+from tests.fixtures import LOCAL_PORT
 
 logging.basicConfig(level=logging.CRITICAL)
 
@@ -71,7 +72,7 @@ class FakeSession(AioSession):
 
     def create_client(self, *args, **kwargs):
         if kwargs['endpoint_url'] is None:
-            kwargs['endpoint_url'] = "http://localhost:5000"
+            kwargs['endpoint_url'] = f"http://localhost:{LOCAL_PORT}"
         return super(FakeSession, self).create_client(*args, **kwargs)
 
 
@@ -81,7 +82,7 @@ class S3MockedAsyncTestCase(AsyncTestCase):
     @classmethod
     def setUpClass(cls):
         super(S3MockedAsyncTestCase, cls).setUpClass()
-        cls._process = start_service("localhost", 5000)
+        cls._process = start_service("localhost", LOCAL_PORT)
 
         os.environ['AWS_SHARED_CREDENTIALS_FILE'] = ''
         os.environ['AWS_ACCESS_KEY_ID'] = 'test-key'
@@ -96,9 +97,10 @@ class S3MockedAsyncTestCase(AsyncTestCase):
     def setUp(self):
         super(S3MockedAsyncTestCase, self).setUp()
 
-        requests.post("http://localhost:5000/moto-api/reset")
+        response = requests.post(f"http://localhost:{LOCAL_PORT}/moto-api/reset")
+        response.raise_for_status()
 
-        client = botocore.session.get_session().create_client('s3', endpoint_url='http://localhost:5000/')
+        client = botocore.session.get_session().create_client('s3', endpoint_url=f'http://localhost:{LOCAL_PORT}/')
         client.create_bucket(Bucket=s3_bucket)
 
         client_patcher = mock.patch('aiobotocore.session.AioSession', FakeSession)
