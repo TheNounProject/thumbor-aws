@@ -106,7 +106,7 @@ class Storage(AwsStorage, BaseStorage):
         try:
             file_key = await self.storage.get(crypto_path)
         except ClientError as err:
-            logger.warn("[STORAGE] s3 key not found at %s" % crypto_path)
+            logger.warning("[STORAGE] s3 key not found at %s" % crypto_path)
             return None
 
         async with file_key['Body'] as stream:
@@ -161,4 +161,3 @@ class Storage(AwsStorage, BaseStorage):
         :param string path: Path to delete
         """
         return await self.storage.delete(self._normalize_path(path))
-
