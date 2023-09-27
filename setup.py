@@ -59,7 +59,7 @@ setup(
     install_requires=[
         'python-dateutil>=2.8',
         'thumbor>=7.0.0a2,<8',
-        'aiobotocore',
+        'aiobotocore>=2.0',
         'boto3',
     ],
     extras_require={

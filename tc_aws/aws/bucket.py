@@ -45,7 +45,7 @@ class Bucket(object):
             )
 
         if self._client is None:
-            self._client = aiobotocore.get_session().create_client(
+            self._client = aiobotocore.session.get_session().create_client(
                 's3',
                 region_name=region,
                 endpoint_url=endpoint,
