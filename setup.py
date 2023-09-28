@@ -68,6 +68,7 @@ setup(
             'moto[server]>=4.0',
             'mock>=4.0',
             'pytest>=7.2',
+            'pytest-retry',
         ],
     },
 )

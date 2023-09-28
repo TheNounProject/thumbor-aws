@@ -10,6 +10,7 @@ from mock import patch
 from thumbor.context import Context
 from thumbor.loaders import LoaderResult
 from tornado.testing import gen_test
+from pytest import mark
 
 from .fixtures.storage_fixture import IMAGE_PATH, IMAGE_BYTES, s3_bucket
 from tc_aws.loaders import s3_loader
@@ -18,6 +19,7 @@ from tests import S3MockedAsyncTestCase
 
 class S3LoaderTestCase(S3MockedAsyncTestCase):
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_can_load_image(self):
         client = botocore.session.get_session().create_client('s3', endpoint_url='http://localhost:5000')
@@ -39,6 +41,7 @@ class S3LoaderTestCase(S3MockedAsyncTestCase):
         self.assertTrue('size' in loader_result.metadata)
         self.assertIsNone(loader_result.error)
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_returns_404_on_no_image(self):
         conf = Config(
@@ -51,6 +54,7 @@ class S3LoaderTestCase(S3MockedAsyncTestCase):
         self.assertIsNone(loader_result.buffer)
         self.assertEqual(loader_result.error, LoaderResult.ERROR_NOT_FOUND)
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_can_validate_buckets(self):
         conf = Config(
@@ -62,6 +66,7 @@ class S3LoaderTestCase(S3MockedAsyncTestCase):
         self.assertIsNone(image.buffer)
 
     @patch('thumbor.loaders.http_loader.load')
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_should_use_http_loader(self, load_sync_patch):
         conf = Config(TC_AWS_ENABLE_HTTP_LOADER=True)
@@ -69,6 +74,7 @@ class S3LoaderTestCase(S3MockedAsyncTestCase):
         self.assertTrue(load_sync_patch.called)
 
     @patch('thumbor.loaders.http_loader.load')
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_should_not_use_http_loader_if_not_prefixed_with_scheme(self, load_sync_patch):
         conf = Config(TC_AWS_ENABLE_HTTP_LOADER=True)

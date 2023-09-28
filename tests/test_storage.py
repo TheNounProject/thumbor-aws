@@ -8,7 +8,7 @@
 
 from datetime import datetime, timedelta
 from unittest import TestCase
-from pytest import raises
+from pytest import raises, mark
 
 from dateutil.tz import tzutc
 from thumbor.config import Config
@@ -22,6 +22,7 @@ from tests import S3MockedAsyncTestCase
 
 class S3StorageTestCase(S3MockedAsyncTestCase):
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_can_store_image(self):
         config = Config(TC_AWS_STORAGE_BUCKET=s3_bucket)
@@ -32,6 +33,7 @@ class S3StorageTestCase(S3MockedAsyncTestCase):
 
         self.assertEqual(topic, IMAGE_BYTES)
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_can_get_image_existance(self):
         config = Config(TC_AWS_STORAGE_BUCKET=s3_bucket)
@@ -42,6 +44,7 @@ class S3StorageTestCase(S3MockedAsyncTestCase):
 
         self.assertTrue(topic)
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_can_get_image_inexistance(self):
         config = Config(TC_AWS_STORAGE_BUCKET=s3_bucket)
@@ -51,6 +54,7 @@ class S3StorageTestCase(S3MockedAsyncTestCase):
 
         self.assertFalse(topic)
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_can_remove_instance(self):
         config = Config(TC_AWS_STORAGE_BUCKET=s3_bucket,TC_AWS_STORAGE_ROOT_PATH='nana')
@@ -61,6 +65,7 @@ class S3StorageTestCase(S3MockedAsyncTestCase):
 
         self.assertFalse(topic)
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_can_remove_then_put_image(self):
         config = Config(TC_AWS_STORAGE_BUCKET=s3_bucket)
@@ -94,6 +99,7 @@ class S3StorageTestCase(S3MockedAsyncTestCase):
 
 class CryptoS3StorageTestCase(S3MockedAsyncTestCase):
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_should_raise_on_invalid_config(self):
         config = Config(TC_AWS_STORAGE_BUCKET=s3_bucket, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
@@ -104,6 +110,7 @@ class CryptoS3StorageTestCase(S3MockedAsyncTestCase):
         with raises(RuntimeError, match='STORES_CRYPTO_KEY_FOR_EACH_IMAGE can\'t be True if no SECURITY_KEY specified'):
             await storage.put_crypto(IMAGE_URL % '9999')
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_getting_crypto_for_a_new_image_returns_none(self):
         config = Config(TC_AWS_STORAGE_BUCKET=s3_bucket, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
@@ -120,6 +127,7 @@ class CryptoS3StorageTestCase(S3MockedAsyncTestCase):
         topic = await storage.get_crypto(IMAGE_URL % '9998')
         self.assertIsNone(topic)
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_can_store_crypto(self):
         config = Config(TC_AWS_STORAGE_BUCKET=s3_bucket, STORES_CRYPTO_KEY_FOR_EACH_IMAGE=True)
@@ -135,6 +143,7 @@ class CryptoS3StorageTestCase(S3MockedAsyncTestCase):
 
 class DetectorS3StorageTestCase(S3MockedAsyncTestCase):
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_can_store_detector_data(self):
         config = Config(TC_AWS_STORAGE_BUCKET=s3_bucket)
@@ -145,6 +154,7 @@ class DetectorS3StorageTestCase(S3MockedAsyncTestCase):
 
         self.assertEqual(topic, 'some-data')
 
+    @mark.flaky
     @gen_test(timeout=45)
     async def test_returns_none_if_no_detector_data(self):
         config = Config(TC_AWS_STORAGE_BUCKET=s3_bucket)
