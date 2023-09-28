@@ -5,6 +5,7 @@
 # found in the LICENSE file.
 
 import aiobotocore
+from aiobotocore.session import ClientCreatorContext
 from botocore.client import Config
 from thumbor.utils import logger
 from thumbor.engines import BaseEngine
@@ -26,6 +27,7 @@ class Bucket(object):
     """
     This handles all communication with AWS API
     """
+
     def __init__(self, bucket, region, endpoint, max_retry=None):
         """
         Constructor
@@ -38,19 +40,11 @@ class Bucket(object):
 
         config = None
         if max_retry is not None:
-            config = Config(
-                retries=dict(
-                    max_attempts=max_retry
-                )
-            )
+            config = Config(retries=dict(max_attempts=max_retry))
 
-        if self._client is None:
-            self._client = aiobotocore.get_session().create_client(
-                's3',
-                region_name=region,
-                endpoint_url=endpoint,
-                config=config
-            )
+        self.region = region
+        self.config = config
+        self.endpoint = endpoint
 
     async def exists(self, path):
         """
@@ -58,10 +52,13 @@ class Bucket(object):
         :param string path: Path or 'key' to retrieve AWS object
         """
         try:
-            await self._client.head_object(
-                Bucket=self._bucket,
-                Key=self._clean_key(path),
-            )
+            async with aiobotocore.session.get_session().create_client(
+                "s3", region_name=self.region, endpoint_url=self.endpoint, config=self.config,
+            ) as client:
+                await client.head_object(
+                    Bucket=self._bucket,
+                    Key=self._clean_key(path),
+                )
         except Exception:
             return False
         return True
@@ -71,31 +68,35 @@ class Bucket(object):
         Returns object at given path
         :param string path: Path or 'key' to retrieve AWS object
         """
+        async with aiobotocore.session.get_session().create_client(
+                "s3", region_name=self.region, endpoint_url=self.endpoint, config=self.config,
+            ) as client:
+            return await client.get_object(
+                Bucket=self._bucket,
+                Key=self._clean_key(path),
+            )
 
-        return await self._client.get_object(
-            Bucket=self._bucket,
-            Key=self._clean_key(path),
-        )
-
-    async def get_url(self, path, method='GET', expiry=3600):
+    async def get_url(self, path, method="GET", expiry=3600):
         """
         Generates the presigned url for given key & methods
         :param string path: Path or 'key' for requested object
         :param string method: Method for requested URL
         :param int expiry: URL validity time
         """
+        async with aiobotocore.session.get_session().create_client(
+                "s3", region_name=self.region, endpoint_url=self.endpoint, config=self.config,
+            ) as client:
+            url = await client.generate_presigned_url(
+                ClientMethod="get_object",
+                Params={
+                    "Bucket": self._bucket,
+                    "Key": self._clean_key(path),
+                },
+                ExpiresIn=expiry,
+                HttpMethod=method,
+            )
 
-        url = await self._client.generate_presigned_url(
-            ClientMethod='get_object',
-            Params={
-                'Bucket': self._bucket,
-                'Key': self._clean_key(path),
-            },
-            ExpiresIn=expiry,
-            HttpMethod=method,
-        )
-
-        return url
+            return url
 
     async def put(self, path, data, metadata=None, reduced_redundancy=False, encrypt_key=False):
         """
@@ -121,19 +122,24 @@ class Bucket(object):
             args['ServerSideEncryption'] = 'AES256'
 
         if metadata is not None:
-            args['Metadata'] = metadata
-
-        return await self._client.put_object(**args)
+            args["Metadata"] = metadata
+        async with aiobotocore.session.get_session().create_client(
+                "s3", region_name=self.region, endpoint_url=self.endpoint, config=self.config,
+            ) as client:
+            return await client.put_object(**args)
 
     async def delete(self, path):
         """
         Deletes key at given path
         :param string path: Path or 'key' to delete
         """
-        return await self._client.delete_object(
-            Bucket=self._bucket,
-            Key=self._clean_key(path),
-        )
+        async with aiobotocore.session.get_session().create_client(
+                "s3", region_name=self.region, endpoint_url=self.endpoint, config=self.config,
+            ) as client:
+            return await client.delete_object(
+                Bucket=self._bucket,
+                Key=self._clean_key(path),
+            )
 
     def _clean_key(self, path):
         logger.debug('Cleaning key: {path!r}'.format(path=path))

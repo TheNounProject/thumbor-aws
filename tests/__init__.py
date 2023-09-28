@@ -20,7 +20,9 @@ from tornado.testing import AsyncTestCase
 from tc_aws.aws.bucket import Bucket
 from tests.fixtures.storage_fixture import s3_bucket
 
-logging.basicConfig(level=logging.CRITICAL)
+logging.basicConfig(level=logging.DEBUG)
+
+LOG = logging.getLogger(__name__)
 
 os.environ["TEST_SERVER_MODE"] = "true"
 
@@ -34,12 +36,13 @@ def start_service(host, port):
     args = [sys.executable, "-m", "moto.server", "-H", host,
             "-p", str(port)]
 
-    process = sp.Popen(args, stderr=sp.PIPE)
+    process = sp.Popen(args, stderr=sp.PIPE, stdout=sp.PIPE)
     url = "http://{host}:{port}".format(host=host, port=port)
 
     for i in range(0, 30):
         if process.poll() is not None:
-            process.communicate()
+            out, err = process.communicate()
+            LOG.debug('Received stdout %s, stderr %s', out, err)
             break
 
         try:
@@ -54,10 +57,11 @@ def start_service(host, port):
     return process
 
 
-def stop_process(process):
+def stop_process(process: sp.Popen):
     try:
         process.send_signal(signal.SIGTERM)
-        process.communicate()
+        stdout, stderr = process.communicate()
+        LOG.debug('Received while stopping: stdout %s, stderr %s', stdout, stderr)
     except Exception:
         process.kill()
         outs, errors = process.communicate()

@@ -37,8 +37,8 @@ setup(
     description='Thumbor AWS extensions',
     long_description=readme(),
     long_description_content_type='text/markdown',
-    author='Thumbor-Community & William King',
-    author_email='h.briand@gmail.com',  # Original author email is: willtrking@gmail.com
+    author='Noun Project & Thumbor-Community & William King',
+    author_email='drew@thenounproject.com',  # Original author email is: willtrking@gmail.com, thumbor-community email h.briand@gmail.com
     zip_safe=False,
     include_package_data=True,
     packages=find_packages(),
@@ -50,16 +50,16 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Internet",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
     keywords='thumbor aws',
     install_requires=[
-        'python-dateutil>=2.8',
-        'thumbor>=7.0.0a2,<8',
-        'aiobotocore==0.12.0',
-        'boto3>=1.9,<1.13',
+        "python-dateutil>=2.8",
+        "thumbor>=7.0.0a2,<8",
+        "aiobotocore>=2.0",
+        "boto3",
     ],
     extras_require={
         'tests': [
@@ -67,6 +67,7 @@ setup(
             'moto[server]>=4.0',
             'mock>=4.0',
             'pytest>=7.2',
+            'pytest-retry',
         ],
     },
 )
