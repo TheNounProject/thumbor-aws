@@ -20,7 +20,7 @@ from tests import S3MockedAsyncTestCase
 class S3LoaderTestCase(S3MockedAsyncTestCase):
 
     @mark.flaky
-    @gen_test(timeout=45)
+    @gen_test(timeout=10)
     async def test_can_load_image(self):
         client = botocore.session.get_session().create_client('s3', endpoint_url='http://localhost:5000')
 
@@ -42,7 +42,7 @@ class S3LoaderTestCase(S3MockedAsyncTestCase):
         self.assertIsNone(loader_result.error)
 
     @mark.flaky
-    @gen_test(timeout=45)
+    @gen_test(timeout=10)
     async def test_returns_404_on_no_image(self):
         conf = Config(
             TC_AWS_LOADER_BUCKET=s3_bucket,
@@ -55,7 +55,7 @@ class S3LoaderTestCase(S3MockedAsyncTestCase):
         self.assertEqual(loader_result.error, LoaderResult.ERROR_NOT_FOUND)
 
     @mark.flaky
-    @gen_test(timeout=45)
+    @gen_test(timeout=10)
     async def test_can_validate_buckets(self):
         conf = Config(
             TC_AWS_ALLOWED_BUCKETS=['whitelist_bucket'],
@@ -67,7 +67,7 @@ class S3LoaderTestCase(S3MockedAsyncTestCase):
 
     @patch('thumbor.loaders.http_loader.load')
     @mark.flaky
-    @gen_test(timeout=45)
+    @gen_test(timeout=10)
     async def test_should_use_http_loader(self, load_sync_patch):
         conf = Config(TC_AWS_ENABLE_HTTP_LOADER=True)
         await s3_loader.load(Context(config=conf), 'http://foo.bar')
@@ -75,7 +75,7 @@ class S3LoaderTestCase(S3MockedAsyncTestCase):
 
     @patch('thumbor.loaders.http_loader.load')
     @mark.flaky
-    @gen_test(timeout=45)
+    @gen_test(timeout=10)
     async def test_should_not_use_http_loader_if_not_prefixed_with_scheme(self, load_sync_patch):
         conf = Config(TC_AWS_ENABLE_HTTP_LOADER=True)
         await s3_loader.load(Context(config=conf), 'foo/bar')

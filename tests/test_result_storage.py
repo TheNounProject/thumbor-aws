@@ -25,7 +25,7 @@ class Request(object):
 class S3StorageTestCase(S3MockedAsyncTestCase):
 
     @mark.flaky
-    @gen_test(timeout=45)
+    @gen_test(timeout=10)
     async def test_can_get_image(self):
         config = Config(TC_AWS_RESULT_STORAGE_BUCKET=s3_bucket)
         ctx = Context(config=config, server=get_server('ACME-SEC'))
@@ -40,7 +40,7 @@ class S3StorageTestCase(S3MockedAsyncTestCase):
         self.assertEqual(topic.buffer, IMAGE_BYTES)
 
     @mark.flaky
-    @gen_test(timeout=45)
+    @gen_test(timeout=10)
     async def test_can_get_randomized_image(self):
         config = Config(TC_AWS_RESULT_STORAGE_BUCKET=s3_bucket, TC_AWS_RANDOMIZE_KEYS=True)
         ctx = Context(config=config, server=get_server('ACME-SEC'))
@@ -55,7 +55,7 @@ class S3StorageTestCase(S3MockedAsyncTestCase):
         self.assertEqual(topic.buffer, IMAGE_BYTES)
 
     @mark.flaky
-    @gen_test(timeout=45)
+    @gen_test(timeout=10)
     async def test_can_get_image_with_metadata(self):
         config = Config(TC_AWS_RESULT_STORAGE_BUCKET=s3_bucket, TC_AWS_STORE_METADATA=True)
         ctx = Context(config=config, server=get_server('ACME-SEC'))
