@@ -20,7 +20,9 @@ from tornado.testing import AsyncTestCase
 from tc_aws.aws.bucket import Bucket
 from tests.fixtures.storage_fixture import s3_bucket
 
-logging.basicConfig(level=logging.CRITICAL)
+logging.basicConfig(level=logging.DEBUG)
+
+LOG = logging.getLogger(__name__)
 
 os.environ["TEST_SERVER_MODE"] = "true"
 
@@ -39,7 +41,8 @@ def start_service(host, port):
 
     for i in range(0, 30):
         if process.poll() is not None:
-            process.communicate()
+            out, err = process.communicate()
+            LOG.debug('Received stdout %s, stderr %s', out, err)
             break
 
         try:
