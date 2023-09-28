@@ -36,7 +36,7 @@ def start_service(host, port):
     args = [sys.executable, "-m", "moto.server", "-H", host,
             "-p", str(port)]
 
-    process = sp.Popen(args, stderr=sp.PIPE)
+    process = sp.Popen(args, stderr=sp.PIPE, stdout=sp.PIPE)
     url = "http://{host}:{port}".format(host=host, port=port)
 
     for i in range(0, 30):
