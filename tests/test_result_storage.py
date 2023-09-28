@@ -11,6 +11,7 @@ from dateutil.tz import tzutc
 from thumbor.config import Config
 from thumbor.context import Context
 from tornado.testing import gen_test
+from pytest import mark
 
 from .fixtures.storage_fixture import IMAGE_BYTES, get_server, s3_bucket
 from tc_aws.result_storages.s3_storage import Storage
