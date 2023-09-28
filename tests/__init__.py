@@ -57,10 +57,11 @@ def start_service(host, port):
     return process
 
 
-def stop_process(process):
+def stop_process(process: sp.Popen):
     try:
         process.send_signal(signal.SIGTERM)
-        process.communicate()
+        stdout, stderr = process.communicate()
+        LOG.debug('Received while stopping: stdout %s, stderr %s', stdout, stderr)
     except Exception:
         process.kill()
         outs, errors = process.communicate()
